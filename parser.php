@@ -5,7 +5,7 @@ class cricinfoPlayerStats{
   public $_url, $_html;
   
   
-  public function __construct($player_url){
+  public function __construct($player_url=""){
   
     if($player_url){
       $this->check_url($player_url);
@@ -17,9 +17,11 @@ class cricinfoPlayerStats{
   //function to set or modify url of the player stats page
   public function set_url($player_url){
   
-    $this->check_url($player_url);
-    $this->_url = $player_url;	 
-  
+    if($player_url){
+      $this->check_url($player_url);
+      $this->_url = $player_url;	 
+    }   
+
   } 
 
   private function check_url($player_url){
