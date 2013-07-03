@@ -3,14 +3,23 @@
 class cricinfoPlayerStats{
 
   public $_url, $_html;
-  
-  
+  public $_dataArray;
+  private $_batTitles, $_bowlTitles, $_bowlArray, $_batArray, $_bat, $_bowl;
+
   public function __construct($player_url=""){
   
     if($player_url){
       $this->check_url($player_url);
       $this->_url = $player_url;
     }
+
+    $this->_batArray = array();    
+    $this->_bowlArray = array();
+    $this->_dataArray = array();
+    
+    $this->_batTitles = array('Format', 'Matches', 'Innings', 'Not-Outs', 'Runs', 'High-Score', 'Average', 'BF', 'Strike-Rate', '100s', '50s', '4s', '6s', 'Catches', 'Stumpings');
+    
+    $this->_bowlTitles = array('Format', 'Matches', 'Innings', 'Balls', 'Runs', 'Wickets', 'BBI', 'BBM', 'Average', 'Economy', 'Strike-Rate', '4w', '5w', '10w');
   
   }
 
@@ -84,23 +93,51 @@ class cricinfoPlayerStats{
     $i = 1;
     
     $tags = $dom->getElementsByTagName('tr');
-    foreach($tags as $tag)
+    foreach($tags as $tag){
       
+      $this->_bat = array();
+      $this->_bowl = array();        
+
       //select those rows with class name 'data1'
       if($tag->getAttribute('class') == 'data1' && $i<13){
         
-        //get the child nodes  
+        //get the child nodes
         $abs = $tag->childNodes;
-        foreach($abs as $ab)		 
-          if($ab->hasChildNodes()) 
-            if($ab->nodeValue == $tag->firstChild->nodeValue)
-              echo "<b>".$ab->nodeValue."</b><br/>";
-            else
-              echo $ab->nodeValue."<br/>";
-          else echo "<br/>";		 
+
+        foreach($abs as $index => $ab)
+	  if($ab->nodeType == 1){
+          $ab->nodeValue = str_replace("/"," for ",$ab->nodeValue);
+                        
+            if($i<=6){
+              $key = $this->_batTitles[$index/2];
+              $this->_bat[$key] = $ab->nodeValue;
+            }
+            else{
+              $key = $this->_bowlTitles[$index/2];
+	      $this->_bowl[$key] = $ab->nodeValue;
+            }
+            echo $ab->nodeValue."<br/>";
+
+          }	  
+
+        if($i<=6){
+          array_push($this->_batArray, $this->_bat);
+          //print_r($this->_batArray);
+        }
+	else{
+          array_push($this->_bowlArray, $this->_bowl);
+          //print_r($this->_bowlArray); 
+        }
+	 
         $i++;
+
+      }
     }
+    $this->_dataArray['Batting and Fielding'] = $this->_batArray;
+    $this->_dataArray['Bowling'] = $this->_bowlArray;
+    echo json_encode($this->_dataArray);
   }
+
 
 }
 
