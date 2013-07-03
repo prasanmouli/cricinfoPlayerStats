@@ -2,9 +2,8 @@
 
 class cricinfoPlayerStats{
 
-  public $_url, $_html;
-  public $_dataArray;
-  private $_batTitles, $_bowlTitles, $_bowlArray, $_batArray, $_bat, $_bowl;
+  public $_url, $_html, $_jsonString;
+  private $_dataArray, $_playerName, $_batTitles, $_bowlTitles, $_bowlArray, $_batArray, $_bat, $_bowl;
 
   public function __construct($player_url=""){
   
@@ -39,11 +38,6 @@ class cricinfoPlayerStats{
     if(!strpos($player_url, "cricinfo.com/ci/content/player/"))
 	$this->throw_errors("Invalid URL for a cricinfo player profile. <br/>Example URL : <a href='http://www.espncricinfo.com/india/content/player/35320.html'>Sachin Tendulkar</a>");
   
-  }
-
-  private function throw_errors($msg){
-    if($msg)
-      die($msg);
   }
 
 
@@ -92,6 +86,12 @@ class cricinfoPlayerStats{
     //a count on the number of rows of information 
     $i = 1;
     
+    $names = $dom->getElementsByTagName('h1');
+    foreach($names as $playerName){
+      if(!strpos($playerName->firstChild->nodeValue, 'Players')) 
+        $this->_playerName = $playerName->firstChild->nodeValue;
+    }
+
     $tags = $dom->getElementsByTagName('tr');
     foreach($tags as $tag){
       
@@ -116,18 +116,13 @@ class cricinfoPlayerStats{
               $key = $this->_bowlTitles[$index/2];
 	      $this->_bowl[$key] = $ab->nodeValue;
             }
-            echo $ab->nodeValue."<br/>";
 
           }	  
 
-        if($i<=6){
+        if($i<=6)
           array_push($this->_batArray, $this->_bat);
-          //print_r($this->_batArray);
-        }
-	else{
+	else
           array_push($this->_bowlArray, $this->_bowl);
-          //print_r($this->_bowlArray); 
-        }
 	 
         $i++;
 
@@ -135,15 +130,25 @@ class cricinfoPlayerStats{
     }
     $this->_dataArray['Batting and Fielding'] = $this->_batArray;
     $this->_dataArray['Bowling'] = $this->_bowlArray;
-    echo json_encode($this->_dataArray);
+    $this->_jsonString = json_encode($this->_dataArray);
+    return $this->_jsonString;
   }
 
+  //Save the json string in a file
+  public function createFile($path = "./"){
+    $filePath = $path.str_replace(" ","-",$this->_playerName).".txt";
+    if(fopen($filePath, 'w') == false)
+      $this->throw_errors("Cannot open file. Check if the path is valid.");
+    fwrite($f = fopen($filePath, 'w'), $this->_jsonString);
+    fclose($f);
+  } 
+
+
+  private function throw_errors($msg){
+    if($msg)
+      die($msg);
+  }
 
 }
-
-
-$cp = new cricinfoPlayerStats();
-$cp->set_url("http://www.espncricinfo.com/ci/content/player/35320.html");
-$cp->html_parser();
 
 ?>
