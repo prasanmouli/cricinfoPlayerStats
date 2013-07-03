@@ -2,8 +2,7 @@
 
 class cricinfoPlayerStats{
 
-  public $_url, $_html, $_jsonString;
-  private $_dataArray, $_playerName, $_batTitles, $_bowlTitles, $_bowlArray, $_batArray, $_bat, $_bowl;
+  private $_url, $_html, $_dataArray, $_playerName, $_batTitles, $_bowlTitles, $_bowlArray, $_batArray, $_bat, $_bowl;
 
   public function __construct($player_url=""){
   
@@ -11,7 +10,8 @@ class cricinfoPlayerStats{
       $this->check_url($player_url);
       $this->_url = $player_url;
     }
-
+    
+    $this->_playerName = "Player Name";
     $this->_batArray = array();    
     $this->_bowlArray = array();
     $this->_dataArray = array();
@@ -28,7 +28,9 @@ class cricinfoPlayerStats{
     if($player_url){
       $this->check_url($player_url);
       $this->_url = $player_url;	 
-    }   
+    }
+    else 
+      $this->throw_errors("No URL given");
 
   } 
 
@@ -130,23 +132,24 @@ class cricinfoPlayerStats{
     }
     $this->_dataArray['Batting and Fielding'] = $this->_batArray;
     $this->_dataArray['Bowling'] = $this->_bowlArray;
-    $this->_jsonString = json_encode($this->_dataArray);
-    return $this->_jsonString;
+    return json_encode($this->_dataArray);
+
   }
 
   //Save the json string in a file
-  public function createFile($path = "./"){
-    $filePath = $path.str_replace(" ","-",$this->_playerName).".txt";
+  public function create_file($filePath = "", $json = ""){
+    if($filePath == "")
+      $filePath = str_replace(" ","-",$this->_playerName).".json";
     if(fopen($filePath, 'w') == false)
       $this->throw_errors("Cannot open file. Check if the path is valid.");
-    fwrite($f = fopen($filePath, 'w'), $this->_jsonString);
+    fwrite($f = fopen($filePath, 'w'), $json);
     fclose($f);
   } 
 
-
+  //display errors
   private function throw_errors($msg){
     if($msg)
-      die($msg);
+      die("<b>Error:</b> ".$msg);
   }
 
 }
