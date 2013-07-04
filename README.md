@@ -1,7 +1,7 @@
 cricinfoPlayerStats
 ===================
 
-cricinfoPlayerStats is a parser written in PHP to scrape a player's career statistics from <a href='http://www.espncricinfo.com'>Cricinfo's</a> player profiles and convert to a JSON object.
+cricinfoPlayerStats is a parser written in PHP to scrape a player's career statistics from <a href='http://www.espncricinfo.com'>Cricinfo's</a> player profiles and convert into json.
 
 <h2>Purpose</h2>
 
@@ -35,7 +35,7 @@ The URL can be set in one of the following two ways.
 
 <pre><code>$cp->create_file('/somepath/stats.json', $jsonObj); //Default path is './player-name.json'</code></pre>
 
-And the json object would look like :
+json output:
 <pre><code>{
   "Batting and Fielding": [
   	{
